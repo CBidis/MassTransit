@@ -12,7 +12,7 @@
         IRabbitMqQueueEndpointConfigurator
     {
         /// <summary>
-        /// If false, deploys only exchange, without queue
+        /// If false, deploys nothing, and the queue must exist
         /// </summary>
         bool BindQueue { set; }
 

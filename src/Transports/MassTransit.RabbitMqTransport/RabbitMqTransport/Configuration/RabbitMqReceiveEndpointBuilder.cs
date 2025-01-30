@@ -70,6 +70,11 @@ namespace MassTransit.RabbitMqTransport.Configuration
         {
             var topologyBuilder = new ReceiveEndpointBrokerTopologyBuilder();
 
+            if (!settings.BindQueue)
+            {
+                return topologyBuilder.BuildBrokerTopology();
+            }
+
             if (settings.QueueName.Equals(RabbitMqExchangeNames.ReplyTo, StringComparison.OrdinalIgnoreCase))
                 return topologyBuilder.BuildBrokerTopology();
 
@@ -81,13 +86,10 @@ namespace MassTransit.RabbitMqTransport.Configuration
             topologyBuilder.Exchange = topologyBuilder.ExchangeDeclare(settings.ExchangeName ?? settings.QueueName, settings.ExchangeType, settings.Durable,
                 settings.AutoDelete, settings.ExchangeArguments);
 
-            if (settings.BindQueue)
-            {
-                topologyBuilder.Queue = topologyBuilder.QueueDeclare(settings.QueueName, settings.Durable, settings.AutoDelete, settings.Exclusive,
-                    queueArguments);
+            topologyBuilder.Queue = topologyBuilder.QueueDeclare(settings.QueueName, settings.Durable, settings.AutoDelete, settings.Exclusive,
+                queueArguments);
 
-                topologyBuilder.QueueBind(topologyBuilder.Exchange, topologyBuilder.Queue, settings.RoutingKey, settings.BindingArguments);
-            }
+            topologyBuilder.QueueBind(topologyBuilder.Exchange, topologyBuilder.Queue, settings.RoutingKey, settings.BindingArguments);
 
             _configuration.Topology.Consume.Apply(topologyBuilder);
 
